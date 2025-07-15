@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "^5.11.5",
-    "contentful": "^11.7.6",
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

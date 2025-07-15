@@ -3,18 +3,21 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Adicione esta configuração de imagens
   images: {
     remotePatterns: [
+      // Mantenha o antigo se quiser, ou remova-o.
+      // {
+      //   protocol: 'https',
+      //   hostname: 'images.ctfassets.net',
+      // },
+      // Adicione a nova configuração para o DatoCMS
       {
         protocol: 'https',
-        hostname: 'images.ctfassets.net',
+        hostname: 'www.datocms-assets.com',
       },
     ],
   },
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
 };

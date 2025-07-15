@@ -1,46 +1,63 @@
 // src/app/page.tsx
 
-import { createClient } from 'contentful';
-// Importação de unstable_noStore para desabilitar o cache estático
-import { unstable_noStore as noStore } from 'next/cache';
+import { performRequest } from '@/lib/datocms';
 
 import About from "@/components/About";
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 
-async function getProducts() {
-  // Chamamos noStore() no início da função para indicar que esta busca não deve ser cacheada estaticamente.
-  // Isso fará com que os dados sejam buscados a cada requisição, similar a `getServerSideProps`.
-  noStore();
-
-  if (!process.env.CONTENTFUL_SPACE_ID || !process.env.CONTENTFUL_ACCESS_TOKEN) {
-    throw new Error("As variáveis de ambiente do Contentful não estão configuradas.");
+const PAGE_CONTENT_QUERY = `
+  query {
+    allProducts {
+      id
+      title
+      description
+      price
+      image {
+        url
+        width
+        height
+        alt
+      }
+    }
   }
+`;
 
-  const client = createClient({
-    space: process.env.CONTENTFUL_SPACE_ID,
-    accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
-  });
+// Definindo uma interface para a resposta da nossa query
+interface HomePageData {
+  allProducts: Product[]; // Usaremos uma interface Product que definiremos no ProductCard
+}
 
-  // A chamada agora está limpa, sem o parâmetro 'next'
-  const res = await client.getEntries({ content_type: 'product' });
-  
-  console.log('--- EXECUTANDO Server Component (Dinâmico): app/page.tsx ---');
-  console.log(`Encontrados ${res.items.length} produtos.`);
+// Definindo a interface para um único produto (será importada)
+export interface Product {
+  id: string;
+  title: string;
 
-  return res.items;
+  description: string;
+  price: number;
+  image: {
+    url: string;
+    width: number;
+    height: number;
+    alt: string | null;
+  };
+}
+
+async function getProducts(): Promise<HomePageData> {
+  console.log('--- EXECUTANDO getProducts com DatoCMS (ISR) ---');
+  return performRequest<HomePageData>(PAGE_CONTENT_QUERY);
 }
 
 export default async function HomePage() {
-  const products = await getProducts();
+  const { allProducts } = await getProducts();
 
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-grow">
         <Hero />
         <About />
-        <Features products={products} />
+        <Features products={allProducts} />
       </main>
       <Footer />
     </div>

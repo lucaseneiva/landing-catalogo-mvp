@@ -1,5 +1,6 @@
 // src/app/page.tsx
 
+import Link from 'next/link'; // <--- IMPORTANTE: Importar o Link
 import { performRequest } from '@/lib/datocms';
 
 import About from "@/components/About";
@@ -7,6 +8,7 @@ import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 
+// A query e as interfaces continuam as mesmas
 const PAGE_CONTENT_QUERY = `
   query {
     allProducts {
@@ -24,16 +26,9 @@ const PAGE_CONTENT_QUERY = `
   }
 `;
 
-// Definindo uma interface para a resposta da nossa query
-interface HomePageData {
-  allProducts: Product[]; // Usaremos uma interface Product que definiremos no ProductCard
-}
-
-// Definindo a interface para um único produto (será importada)
 export interface Product {
   id: string;
   title: string;
-
   description: string;
   price: number;
   image: {
@@ -44,8 +39,12 @@ export interface Product {
   };
 }
 
+interface HomePageData {
+  allProducts: Product[];
+}
+
 async function getProducts(): Promise<HomePageData> {
-  console.log('--- EXECUTANDO getProducts com DatoCMS (ISR) ---');
+  // Não precisamos mais do log aqui, vamos removê-lo
   return performRequest<HomePageData>(PAGE_CONTENT_QUERY);
 }
 
@@ -57,9 +56,22 @@ export default async function HomePage() {
       <main className="flex-grow">
         <Hero />
         <About />
-        <Features products={allProducts} />
+
+        {/* 1. PASSAMOS APENAS OS 3 PRIMEIROS PRODUTOS */}
+        <Features products={allProducts.slice(0, 3)} />
+
+        {/* 2. ADICIONAMOS O BOTÃO CONDICIONAL */}
+        {allProducts.length > 3 && (
+          <div className="text-center pb-16">
+            <Link
+              href="/produtos"
+              className="inline-block rounded bg-blue-600 px-12 py-3 text-sm font-medium text-white shadow transition hover:bg-blue-700 focus:outline-none focus:ring"
+            >
+              Ver todos os produtos
+            </Link>
+          </div>
+        )}
       </main>
-      <Footer />
     </div>
   );
 }

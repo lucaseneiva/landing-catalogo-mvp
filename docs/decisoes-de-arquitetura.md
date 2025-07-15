@@ -62,3 +62,34 @@
 
 **Aprendizado:** A arquitetura Jamstack/Headless protege a experiência do usuário final da instabilidade do CMS, mas as operações de atualização de conteúdo (seja por editores ou por ISR) são vulneráveis. É crucial saber como forçar um rebuild como plano de contingência.
 
+---
+
+## 5. Implementação de Layout Persistente com Navbar e Footer
+
+**Contexto:** O site precisava de uma navegação e um rodapé consistentes em todas as páginas.
+
+**Decisão:** Utilizar o `RootLayout` (`app/layout.tsx`) do App Router para renderizar a `Navbar` e o `Footer`.
+
+**Motivação:**
+- O `RootLayout` é o local canônico para elementos de UI que devem persistir entre as mudanças de rota.
+- Isso segue o princípio DRY (Don't Repeat Yourself), evitando a necessidade de importar e adicionar a `Navbar` e o `Footer` em cada nova página criada.
+- Garante uma estrutura de HTML consistente e semântica, com o conteúdo da página (`children`) envolto pela tag `<main>`.
+
+**Implementação:**
+- O componente `Navbar` e `Footer` foram adicionados diretamente ao `<body>` do `app/layout.tsx`, envolvendo o `{children}`.
+- O componente `Navbar` foi posteriormente refatorado para ser um **Client Component** (`"use client"`) para permitir a implementação de um menu "hambúrguer" interativo em dispositivos móveis, utilizando o hook `useState` do React.
+
+---
+
+## 6. Criação de Página de Listagem Completa de Produtos
+
+**Contexto:** A página inicial foi projetada para mostrar apenas uma prévia (os 3 primeiros produtos). Era necessário ter uma página dedicada para exibir o catálogo completo.
+
+**Decisão:** Criar uma nova rota estática `/produtos`.
+
+**Implementação:**
+- Uma nova pasta `app/produtos/` foi criada, contendo seu próprio `page.tsx`. Isso automaticamente gerou a nova rota, seguindo as convenções do App Router.
+- A página `/produtos/page.tsx` reutiliza a mesma lógica de busca de dados (`performRequest`) e o mesmo componente de UI (`<Features />`) da página inicial, demonstrando a reutilização de código.
+- A página inicial (`app/page.tsx`) foi ajustada para:
+  1.  Passar apenas os 3 primeiros produtos para o componente `<Features>` usando `allProducts.slice(0, 3)`.
+  2.  Renderizar condicionalmente um botão `<Link href="/produtos">` se o número total de produtos for maior que 3.
